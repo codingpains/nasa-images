@@ -6,29 +6,32 @@ module NASA
     class Client
       attr_reader :api_key
 
-      def initialize(api_key: 'DEMO_KEY')
+      def initialize(api_key:)
         @api_key = api_key
       end
 
-      def images(asof:, rover:, cam:, days:)
-        res = {}
-        (0...days).each do |days_ago|
-          date = (asof - DAY_IN_SECONDS * days_ago).strftime('%Y-%m-%d')
-          uri = URI(build_url(rover: rover, date: date, cam: cam))
-          res[date] = ::JSON.parse(Net::HTTP.get(uri))
-        end
-        res
+      def images_for_day(date:, rover:, cam:, limit:)
+        uri = URI(build_url(rover: rover, date: date, cam: cam))
+        res = ::JSON.parse(Net::HTTP.get(uri))
+        res = limit(res, limit)
+        cleanup(res)
       end
 
       private
 
-      DAY_IN_SECONDS = 84600
-
       def build_url(rover:, date:, cam:)
         date_param = date ? "earth_date=#{date}" : ''
         camera_param = cam ? "camera=#{cam}" : ''
-        params = "#{date_param}#{camera_param}&api_key=#{api_key}"
-        "https://api.nasa.gov/mars-photos/api/v1/rovers/#{rover}/photos?#{params}"
+        params = "#{date_param}&#{camera_param}&api_key=#{api_key}"
+        "#{ENV['NASA_API_BASE_URL']}/#{rover}/photos?#{params}"
+      end
+
+      def limit(res, n)
+        res['photos'].slice(0, n)
+      end
+
+      def cleanup(res)
+        res.map {|img| img['img_src']}
       end
     end
   end
