@@ -1,5 +1,6 @@
 require 'net/http'
 require 'json'
+require './errors'
 
 module NASA
   module Api
@@ -12,7 +13,9 @@ module NASA
 
       def images_for_day(date:, rover:, cam:, limit:)
         uri = URI(build_url(rover: rover, date: date, cam: cam))
-        res = ::JSON.parse(Net::HTTP.get(uri))
+        res = Net::HTTP.get_response(uri)
+        raise_error(res) if not_success?(res)
+        res = ::JSON.parse(res.body)
         res = limit(res, limit)
         cleanup(res)
       end
@@ -32,6 +35,15 @@ module NASA
 
       def cleanup(res)
         res.map {|img| img['img_src']}
+      end
+
+      def not_success?(response)
+        code = response.code.to_i
+        code < 200 || code > 299
+      end
+
+      def raise_error(res)
+        raise NasaApiError.new(details: { msg: res.msg, status: res.code })
       end
     end
   end

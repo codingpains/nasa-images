@@ -22,3 +22,8 @@ class BadInputError < ApiError
   @code = 1
   @message = "Bad Input"
 end
+
+class NasaApiError < ApiError
+  @code = 2
+  @message = "Nasa says no"
+end

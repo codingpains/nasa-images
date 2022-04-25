@@ -7,4 +7,5 @@ gem 'dotenv'
 group :test do
   gem 'rspec-core'
   gem 'rspec-expectations'
+  gem 'webmock'
 end
