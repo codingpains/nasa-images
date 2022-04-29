@@ -38,13 +38,16 @@ My ideal folder structure would look like this:
  |   | api_client.rb
  | spec
 ```
-## System Desigg
+
+This structure includes files that I didn't include in the project.
+
+## System Design
 ![nasa-client-system](https://user-images.githubusercontent.com/54297/165881246-126300ea-2e4e-426c-a493-d167d672d2a1.jpg)
 
 **Bash client (nasa-mars-images.rb)** is just responsible for getting any input, send it to the input parser, use the result of that to create an image query and run it.
 Spit out the result or handle an exception.
 
-**InputParser** gets any input given as args to the client. It will check the keys for anything missing or not allowed and validate the values are correct. e.g. `asof`is an argument that represents the date to consider as the starting point from which to look back N days, it must be validated and parsed into a time object so it can be used everywhere. This class or module is also responsible for all customization such as requesting images from other rovers, selecting the amount of days to return and even how many images per day.
+**InputParser** gets any input given as args to the client. This is the module I would spend the most time in. It will check the keys for anything missing or not allowed and validate the values are correct. e.g. `asof`is an argument that represents the date to consider as the starting point from which to look back N days, it must be validated and parsed into a time object so it can be used everywhere. This class or module is also responsible for all customization such as requesting images from other rovers, selecting the amount of days to return and even how many images per day.
 
 **ImagesQuery** takes the input already parsed and performs a search in cache. Anything found will return directly from there, anything not present will be given to NasaApiClient to fetch.
 
